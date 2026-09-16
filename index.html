@@ -3,111 +3,191 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>AI Exam Question Paper Generator</title>
-    <!-- Tailwind CSS CDN -->
+    <title>Pine Hills - Multi-Language AI Exam Paper Generator</title>
+    <!-- Tailwind CSS -->
     <script src="https://cdn.tailwindcss.com"></script>
-    <!-- Tesseract.js CDN for OCR (Text Scanner) -->
-    <script src="https://unpkg.com/tesseract.js@v4.1.1/dist/tesseract.min.js"></script>
+    <!-- Tesseract.js v5 -->
+    <script src="https://cdn.jsdelivr.net/npm/tesseract.js@5/dist/tesseract.min.js"></script>
+    <!-- Font for Urdu support -->
+    <link href="https://fonts.googleapis.com/css2?family=Noto+Nastaliq+Urdu:wght@400;700&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        .urdu-text {
+            font-family: 'Noto Nastaliq Urdu', serif;
+            direction: rtl;
+        }
+    </style>
 </head>
-<body class="bg-slate-50 text-slate-800 min-h-screen flex flex-col justify-between">
+<body class="bg-slate-50 text-slate-800 min-h-screen flex flex-col justify-between font-sans">
 
     <!-- Header -->
-    <header class="bg-indigo-700 text-white shadow-md py-4 px-6">
-        <div class="max-w-4xl mx-auto flex justify-between items-center">
-            <h1 class="text-xl font-bold flex items-center gap-2">
-                📄 Exam Paper Scanner & Generator
-            </h1>
-            <span class="text-xs bg-indigo-800 py-1 px-3 rounded-full">Single File App</span>
+    <header class="bg-indigo-900 text-white shadow-lg py-4 px-6">
+        <div class="max-w-5xl mx-auto flex flex-col sm:flex-row justify-between items-center gap-2">
+            <div>
+                <h1 class="text-xl font-bold flex items-center gap-2">
+                    🎓 Pine Hills Exam Paper Generator & Scanner
+                </h1>
+                <p class="text-xs text-indigo-200">Supports English, Urdu & Math Papers</p>
+            </div>
+            <span class="text-xs bg-indigo-800 border border-indigo-700 py-1.5 px-3 rounded-full font-medium">100% Client-Side OCR</span>
         </div>
     </header>
 
     <!-- Main Container -->
-    <main class="max-w-4xl w-full mx-auto p-4 md:p-6 flex-grow space-y-6">
+    <main class="max-w-5xl w-full mx-auto p-4 md:p-6 flex-grow space-y-6">
 
-        <!-- Step 1: Input / Scanner Section -->
+        <!-- Step 1: Scanner / Upload Section -->
         <section class="bg-white p-6 rounded-2xl shadow-sm border border-slate-200">
-            <h2 class="text-lg font-semibold text-slate-700 mb-4">Step 1: Page Scan Ya Upload Karein</h2>
+            <div class="flex justify-between items-center mb-4">
+                <h2 class="text-lg font-semibold text-slate-800 flex items-center gap-2">
+                    <span class="bg-indigo-100 text-indigo-700 w-7 h-7 rounded-full flex items-center justify-center text-sm font-bold">1</span>
+                    Page Scan & OCR (English + Urdu + Math)
+                </h2>
+                <div class="flex gap-2">
+                    <select id="ocrLang" class="text-xs border border-slate-300 rounded-lg px-3 py-1.5 bg-slate-50 font-medium">
+                        <option value="eng+urd">English + Urdu</option>
+                        <option value="eng">English Only</option>
+                        <option value="urd">Urdu Only</option>
+                    </select>
+                </div>
+            </div>
             
             <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-                <!-- File Upload -->
-                <div class="flex flex-col justify-center items-center border-2 border-dashed border-slate-300 rounded-xl p-6 hover:border-indigo-500 transition cursor-pointer relative">
+                <!-- File Dropzone -->
+                <div class="flex flex-col justify-center items-center border-2 border-dashed border-slate-300 rounded-xl p-6 hover:border-indigo-500 transition cursor-pointer relative bg-slate-50/50">
                     <input type="file" id="imageInput" accept="image/*" class="absolute inset-0 opacity-0 cursor-pointer">
-                    <svg class="w-10 h-10 text-slate-400 mb-2" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z"></path></svg>
-                    <span class="text-sm font-medium text-slate-600">Gallery se Image Select Karein</span>
-                    <span class="text-xs text-slate-400 mt-1">PNG, JPG, JPEG</span>
+                    <svg class="w-12 h-12 text-indigo-400 mb-2" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z"></path></svg>
+                    <span class="text-sm font-semibold text-slate-700">Click ya Image Drop Karein</span>
+                    <span class="text-xs text-slate-400 mt-1">Book page, handwritten notes, math formulas</span>
                 </div>
 
                 <!-- Preview Box -->
-                <div class="flex flex-col items-center justify-center border border-slate-200 rounded-xl p-3 bg-slate-50 min-h-[160px]">
-                    <p id="previewText" class="text-xs text-slate-400 mb-2">Image Preview Yahan Ayega</p>
-                    <img id="imagePreview" class="max-h-40 rounded object-contain hidden shadow" alt="Preview">
+                <div class="flex flex-col items-center justify-center border border-slate-200 rounded-xl p-3 bg-slate-50 min-h-[180px] relative overflow-hidden">
+                    <p id="previewText" class="text-xs text-slate-400 mb-2">Image Preview Yahan Show Hoga</p>
+                    <img id="imagePreview" class="max-h-44 rounded object-contain hidden shadow-sm" alt="Preview">
                 </div>
             </div>
 
             <!-- Scan Button -->
-            <button id="scanBtn" onclick="startOCR()" class="mt-4 w-full bg-indigo-600 hover:bg-indigo-700 text-white font-medium py-2.5 rounded-xl transition flex items-center justify-center gap-2 shadow-sm disabled:opacity-50" disabled>
-                <span>🔍 Text Scan Karein (Extract Text)</span>
+            <button id="scanBtn" onclick="startOCR()" class="mt-4 w-full bg-indigo-600 hover:bg-indigo-700 text-white font-medium py-3 rounded-xl transition flex items-center justify-center gap-2 shadow-sm disabled:opacity-50 disabled:cursor-not-allowed" disabled>
+                <span>🔍 Scan Image & Extract Text</span>
             </button>
 
-            <!-- Loading Indicator -->
-            <div id="loadingBox" class="hidden mt-4 text-center">
+            <!-- Loading Progress -->
+            <div id="loadingBox" class="hidden mt-4 bg-indigo-50 border border-indigo-100 p-4 rounded-xl text-center space-y-2">
                 <div class="inline-block animate-spin rounded-full h-6 w-6 border-4 border-indigo-600 border-t-transparent"></div>
-                <p id="loadingStatus" class="text-sm text-indigo-600 font-medium mt-1">Scanning ho rahi hai, baraye meherbani intezar karein...</p>
+                <p id="loadingStatus" class="text-sm text-indigo-700 font-medium">Initializing OCR Engine...</p>
+                <div class="w-full bg-slate-200 rounded-full h-2 max-w-md mx-auto overflow-hidden">
+                    <div id="progressBar" class="bg-indigo-600 h-2 w-0 transition-all duration-300"></div>
+                </div>
             </div>
         </section>
 
-        <!-- Step 2: Editor & Paper Settings Section -->
+        <!-- Step 2: Paper Details & Editor -->
         <section class="bg-white p-6 rounded-2xl shadow-sm border border-slate-200 space-y-4">
-            <h2 class="text-lg font-semibold text-slate-700">Step 2: Paper Details Aur Questions Edit Karein</h2>
+            <h2 class="text-lg font-semibold text-slate-800 flex items-center gap-2">
+                <span class="bg-indigo-100 text-indigo-700 w-7 h-7 rounded-full flex items-center justify-center text-sm font-bold">2</span>
+                Paper Header & Questions Editor
+            </h2>
 
-            <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+            <div class="grid grid-cols-1 md:grid-cols-4 gap-4">
                 <div>
                     <label class="block text-xs font-semibold text-slate-600 mb-1">School / Institute Name</label>
-                    <input type="text" id="schoolName" value="Pine Hills School" class="w-full text-sm border border-slate-300 rounded-lg p-2.5 focus:ring-2 focus:ring-indigo-500 outline-none">
+                    <input type="text" id="schoolName" value="Pine Hills School & College" class="w-full text-sm border border-slate-300 rounded-lg p-2.5 focus:ring-2 focus:ring-indigo-500 outline-none">
                 </div>
                 <div>
                     <label class="block text-xs font-semibold text-slate-600 mb-1">Subject / Title</label>
-                    <input type="text" id="paperSubject" value="General Assessment" class="w-full text-sm border border-slate-300 rounded-lg p-2.5 focus:ring-2 focus:ring-indigo-500 outline-none">
+                    <input type="text" id="paperSubject" value="Mathematics & General Science" class="w-full text-sm border border-slate-300 rounded-lg p-2.5 focus:ring-2 focus:ring-indigo-500 outline-none">
                 </div>
                 <div>
-                    <label class="block text-xs font-semibold text-slate-600 mb-1">Total Marks / Time</label>
-                    <input type="text" id="paperMarks" value="Marks: 50 | Time: 1 Hour" class="w-full text-sm border border-slate-300 rounded-lg p-2.5 focus:ring-2 focus:ring-indigo-500 outline-none">
+                    <label class="block text-xs font-semibold text-slate-600 mb-1">Class / Grade</label>
+                    <input type="text" id="paperClass" value="Class: 8th / Metric" class="w-full text-sm border border-slate-300 rounded-lg p-2.5 focus:ring-2 focus:ring-indigo-500 outline-none">
+                </div>
+                <div>
+                    <label class="block text-xs font-semibold text-slate-600 mb-1">Total Marks & Time</label>
+                    <input type="text" id="paperMarks" value="Marks: 100 | Time: 2 Hours" class="w-full text-sm border border-slate-300 rounded-lg p-2.5 focus:ring-2 focus:ring-indigo-500 outline-none">
                 </div>
             </div>
 
-            <div>
-                <label class="block text-xs font-semibold text-slate-600 mb-1">Extracted / Editable Questions Text</label>
-                <textarea id="extractedText" rows="6" class="w-full text-sm border border-slate-300 rounded-xl p-3 focus:ring-2 focus:ring-indigo-500 outline-none font-mono" placeholder="Scan karne ke baad text yahan show hoga, aap yahan manual editing bhi kar sakte hain..."></textarea>
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <div>
+                    <div class="flex justify-between items-center mb-1">
+                        <label class="text-xs font-semibold text-slate-600">Extracted / Editable Questions (English & Math)</label>
+                        <span class="text-[10px] text-slate-400">Math symbols like +, -, ×, ÷, =, ^2, √ are supported</span>
+                    </div>
+                    <textarea id="extractedText" rows="8" class="w-full text-sm border border-slate-300 rounded-xl p-3 focus:ring-2 focus:ring-indigo-500 outline-none font-mono" placeholder="Scan ke baad text yahan aayega, aap manual editing ya math equations likh sakte hain..."></textarea>
+                </div>
+                <div>
+                    <div class="flex justify-between items-center mb-1">
+                        <label class="text-xs font-semibold text-slate-600">Urdu Section / Questions (اردو سوالات)</label>
+                        <span class="text-[10px] text-slate-400">Urdu text ke liye yahan type ya paste karein</span>
+                    </div>
+                    <textarea id="urduText" rows="8" class="w-full text-sm border border-slate-300 rounded-xl p-3 focus:ring-2 focus:ring-indigo-500 outline-none urdu-text" placeholder="اردو سوالات یہاں درج کریں یا سکین ہوں گے..."></textarea>
+                </div>
             </div>
 
-            <button onclick="generatePaper()" class="w-full bg-emerald-600 hover:bg-emerald-700 text-white font-medium py-2.5 rounded-xl transition shadow-sm">
-                ✨ Final Question Paper Tayar Karein
+            <!-- Quick Formatting Action Buttons -->
+            <div class="flex flex-wrap gap-2 pt-2">
+                <button onclick="insertSymbol('×')" class="bg-slate-100 hover:bg-slate-200 text-slate-700 text-xs px-3 py-1.5 rounded font-mono font-bold">×</ (Multiply)</button>
+                <button onclick="insertSymbol('÷')" class="bg-slate-100 hover:bg-slate-200 text-slate-700 text-xs px-3 py-1.5 rounded font-mono font-bold">÷ (Divide)</button>
+                <button onclick="insertSymbol('±')" class="bg-slate-100 hover:bg-slate-200 text-slate-700 text-xs px-3 py-1.5 rounded font-mono font-bold">± (Plus-Minus)</button>
+                <button onclick="insertSymbol('√')" class="bg-slate-100 hover:bg-slate-200 text-slate-700 text-xs px-3 py-1.5 rounded font-mono font-bold">√ (Square Root)</button>
+                <button onclick="insertSymbol('²')" class="bg-slate-100 hover:bg-slate-200 text-slate-700 text-xs px-3 py-1.5 rounded font-mono font-bold">² (Square)</button>
+                <button onclick="insertSymbol('π')" class="bg-slate-100 hover:bg-slate-200 text-slate-700 text-xs px-3 py-1.5 rounded font-mono font-bold">π (Pi)</button>
+                <button onclick="insertSymbol('°')" class="bg-slate-100 hover:bg-slate-200 text-slate-700 text-xs px-3 py-1.5 rounded font-mono font-bold">° (Degree)</button>
+            </div>
+
+            <button onclick="generatePaper()" class="w-full bg-emerald-600 hover:bg-emerald-700 text-white font-medium py-3 rounded-xl transition shadow-sm flex items-center justify-center gap-2">
+                ✨ Generate Final Exam Paper Layout
             </button>
         </section>
 
-        <!-- Step 3: Final Printable Paper View -->
-        <section id="printArea" class="bg-white p-8 rounded-2xl shadow-sm border border-slate-200 print:shadow-none print:border-none space-y-6">
-            <div class="text-center border-b pb-4">
-                <h2 id="finalSchool" class="text-2xl font-bold uppercase tracking-wide text-slate-900">Pine Hills School</h2>
-                <p id="finalSubject" class="text-base font-medium text-slate-700 mt-1">Subject: General Assessment</p>
-                <div class="flex justify-between text-xs text-slate-600 mt-3 px-2">
-                    <span id="finalMarks">Marks: 50 | Time: 1 Hour</span>
-                    <span>Student Name: _______________________</span>
+        <!-- Step 3: Final Professional Printable Exam Paper Preview -->
+        <section id="printArea" class="bg-white p-8 md:p-12 rounded-2xl shadow-sm border border-slate-200 print:shadow-none print:border-none space-y-6">
+            <!-- Header Paper Details -->
+            <div class="text-center border-b-2 border-slate-800 pb-5 space-y-2">
+                <h2 id="finalSchool" class="text-2xl md:text-3xl font-black uppercase tracking-wider text-slate-900">Pine Hills School & College</h2>
+                <div class="flex justify-center gap-6 text-sm font-semibold text-slate-700">
+                    <span id="finalClass">Class: 8th / Metric</span>
+                    <span>|</span>
+                    <span id="finalSubject">Subject: Mathematics & General Science</span>
+                </div>
+                <div class="flex justify-between items-center text-xs font-bold text-slate-800 pt-3 px-2 border-t border-slate-200 mt-2">
+                    <span id="finalMarks">Marks: 100 | Time: 2 Hours</span>
+                    <span>Student Name: _______________________ Roll No: _________</span>
                 </div>
             </div>
 
-            <div>
-                <h3 class="text-sm font-bold text-slate-800 uppercase tracking-wider mb-3">Questions:</h3>
-                <div id="finalQuestionsList" class="space-y-3 text-sm text-slate-800 whitespace-pre-line leading-relaxed">
-                    <p class="text-slate-400 italic">Upar diye gaye steps follow karein, yahan aapka formatted paper ban kar aayega.</p>
+            <!-- English & Math Questions Section -->
+            <div class="space-y-4">
+                <h3 id="engSectionTitle" class="text-sm font-bold text-slate-900 uppercase tracking-wider border-b border-slate-300 pb-1 flex justify-between">
+                    <span>Part I: English & Quantitative / Math Questions</span>
+                    <span class="text-xs font-normal text-slate-500">Marks: As indicated</span>
+                </h3>
+                <div id="finalQuestionsList" class="space-y-3 text-sm text-slate-900 leading-relaxed pl-2">
+                    <p class="text-slate-400 italic">Paper generate karne ke liye upar diye gaye steps mukammal karein.</p>
                 </div>
+            </div>
+
+            <!-- Urdu Section -->
+            <div id="urduSectionContainer" class="space-y-4 pt-4 border-t border-dashed border-slate-300">
+                <h3 class="text-sm font-bold text-slate-900 uppercase tracking-wider border-b border-slate-300 pb-1 flex justify-between urdu-text">
+                    <span>حص دوم: اردو سوالات و مضامین</span>
+                    <span class="text-xs font-normal text-slate-500">حصہ دوم</span>
+                </h3>
+                <div id="finalUrduList" class="space-y-3 text-base text-slate-900 leading-loose urdu-text pr-2">
+                    <p class="text-slate-400 italic text-sm font-sans">No Urdu questions added yet.</p>
+                </div>
+            </div>
+
+            <div class="text-center pt-8 border-t border-slate-200 text-xs text-slate-500">
+                <p>*** Best of Luck ***</p>
             </div>
         </section>
 
-        <!-- Print Action Button -->
-        <div class="flex justify-end pb-6">
-            <button onclick="window.print()" class="bg-slate-800 hover:bg-slate-900 text-white px-6 py-2.5 rounded-xl font-medium shadow transition flex items-center gap-2">
-                🖨️ Print / Save as PDF
+        <!-- Print Action Bar -->
+        <div class="flex justify-end pb-8 gap-4">
+            <button onclick="window.print()" class="bg-slate-900 hover:bg-black text-white px-8 py-3 rounded-xl font-medium shadow-md transition flex items-center gap-2">
+                🖨️ Print Paper / Save as PDF
             </button>
         </div>
 
@@ -115,10 +195,10 @@
 
     <!-- Footer -->
     <footer class="bg-slate-100 border-t py-4 text-center text-xs text-slate-500">
-        AI Question Sheet Generator — Single File Web Tool
+        Pine Hills Automation Suite — AI Question Paper Generator
     </footer>
 
-    <!-- JavaScript Logic -->
+    <!-- JavaScript Application Logic -->
     <script>
         let selectedFile = null;
 
@@ -142,73 +222,119 @@
             }
         });
 
+        // Insert Math symbols into active textarea
+        function insertSymbol(symbol) {
+            const activeEl = document.activeElement;
+            const targetArea = (activeEl && activeEl.tagName === 'TEXTAREA') ? activeEl : document.getElementById('extractedText');
+            const start = targetArea.selectionStart;
+            const end = targetArea.selectionEnd;
+            const text = targetArea.value;
+            targetArea.value = text.substring(0, start) + symbol + text.substring(end);
+            targetArea.selectionStart = targetArea.selectionEnd = start + symbol.length;
+            targetArea.focus();
+        }
+
+        // Robust OCR execution using Tesseract.js v5 CDN
         async function startOCR() {
             if (!selectedFile) return;
 
             const loadingBox = document.getElementById('loadingBox');
             const loadingStatus = document.getElementById('loadingStatus');
+            const progressBar = document.getElementById('progressBar');
             const extractedTextArea = document.getElementById('extractedText');
+            const urduTextArea = document.getElementById('urduText');
+            const langSelect = document.getElementById('ocrLang').value;
 
             loadingBox.classList.remove('hidden');
             scanBtn.disabled = true;
 
             try {
-                loadingStatus.innerText = "OCR Engine load ho raha hai...";
-                
-                // Explicitly creating worker with CDN paths to prevent local file worker block
-                const worker = await Tesseract.createWorker('eng', 1, {
-                    workerPath: 'https://unpkg.com/tesseract.js@v4.1.1/dist/worker.min.js',
-                    corePath: 'https://unpkg.com/tesseract.js-core@v4.0.2/tesseract-core.wasm.js',
+                loadingStatus.innerText = "Loading OCR Engine (English & Urdu)...";
+                progressBar.style.width = "20%";
+
+                const worker = await Tesseract.createWorker(langSelect, 1, {
                     logger: m => {
                         if (m.status === 'recognizing text') {
-                            loadingStatus.innerText = `Scan progress: ${Math.round(m.progress * 100)}%`;
+                            const pct = Math.round(m.progress * 100);
+                            loadingStatus.innerText = `Scanning page: ${pct}%`;
+                            progressBar.style.width = (20 + pct * 0.7) + '%';
                         }
                     }
                 });
 
-                loadingStatus.innerText = "Text read ho raha hai...";
+                loadingStatus.innerText = "Extracting text and symbols...";
                 const ret = await worker.recognize(selectedFile);
-                extractedTextArea.value = ret.data.text;
+                
+                const fullText = ret.data.text || "";
+                
+                if (langSelect === 'eng+urd' || langSelect === 'urd') {
+                    urduTextArea.value = fullText;
+                } else {
+                    extractedTextArea.value = fullText;
+                }
 
                 await worker.terminate();
                 loadingBox.classList.add('hidden');
                 scanBtn.disabled = false;
-                
+                progressBar.style.width = "100%";
+
                 generatePaper();
             } catch (error) {
-                console.error(error);
-                alert("Text scan karne mein masla hua. Baraye meherbani page ko Live Server ya local web server par chalayein.");
+                console.error("OCR Error:", error);
+                alert("OCR scan mein network ya worker load ka masla hua. Aap image dekh kar niche boxes mein text manual type kar sakte hain, ya GitHub Pages par domain correctly set karein.");
                 loadingBox.classList.add('hidden');
                 scanBtn.disabled = false;
             }
         }
 
+        // Generate Final Printable Paper View
         function generatePaper() {
             const school = document.getElementById('schoolName').value;
             const subject = document.getElementById('paperSubject').value;
+            const className = document.getElementById('paperClass').value;
             const marks = document.getElementById('paperMarks').value;
-            const rawText = document.getElementById('extractedText').value;
+            
+            const rawEng = document.getElementById('extractedText').value;
+            const rawUrdu = document.getElementById('urduText').value;
 
             document.getElementById('finalSchool').innerText = school;
             document.getElementById('finalSubject').innerText = "Subject: " + subject;
+            document.getElementById('finalClass').innerText = className;
             document.getElementById('finalMarks').innerText = marks;
 
-            const listContainer = document.getElementById('finalQuestionsList');
-            
-            if (!rawText.trim()) {
-                listContainer.innerHTML = `<p class="text-slate-400 italic">Koi text maujood nahi hai.</p>`;
-                return;
+            // Process English / Math Questions
+            const engContainer = document.getElementById('finalQuestionsList');
+            if (!rawEng.trim()) {
+                engContainer.innerHTML = `<p class="text-slate-400 italic text-xs">No English/Math questions provided.</p>`;
+            } else {
+                const lines = rawEng.split('\n').filter(line => line.trim() !== '');
+                let html = '';
+                let qNum = 1;
+                lines.forEach(line => {
+                    if (/^(Q\.?\s*\d+|\d+[\.\-\)])/i.test(line.trim())) {
+                        html += `<div class="py-1 flex gap-2"><span>${line.trim()}</span></div>`;
+                    } else {
+                        html += `<div class="py-1 flex gap-2"><span class="font-semibold text-slate-700 min-w-[24px]">${qNum++}.</span> <span class="flex-1">${line.trim()}</span></div>`;
+                    }
+                });
+                engContainer.innerHTML = html;
             }
 
-            const lines = rawText.split('\n').filter(line => line.trim() !== '');
-            let formattedHTML = '';
-            
-            let qCount = 1;
-            lines.forEach(line => {
-                formattedHTML += `<div class="flex gap-2"><span class="font-semibold text-slate-600">Q${qCount++}.</span> <span>${line}</span></div>`;
-            });
-
-            listContainer.innerHTML = formattedHTML;
+            // Process Urdu Questions
+            const urduContainer = document.getElementById('finalUrduList');
+            const urduSectionContainer = document.getElementById('urduSectionContainer');
+            if (!rawUrdu.trim()) {
+                urduSectionContainer.style.display = 'none';
+            } else {
+                urduSectionContainer.style.display = 'block';
+                const urduLines = rawUrdu.split('\n').filter(line => line.trim() !== '');
+                let uHtml = '';
+                let uNum = 1;
+                urduLines.forEach(line => {
+                    uHtml += `<div class="py-1 flex gap-2 justify-end"><span class="flex-1 text-right">${line.trim()}</span><span class="font-bold text-slate-700">(${uNum++})</span></div>`;
+                });
+                urduContainer.innerHTML = uHtml;
+            }
         }
     </script>
 </body>
