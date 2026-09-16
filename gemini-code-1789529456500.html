@@ -1,0 +1,215 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AI Exam Question Paper Generator</title>
+    <!-- Tailwind CSS CDN -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Tesseract.js CDN for OCR (Text Scanner) -->
+    <script src="https://unpkg.com/tesseract.js@v4.1.1/dist/tesseract.min.js"></script>
+</head>
+<body class="bg-slate-50 text-slate-800 min-h-screen flex flex-col justify-between">
+
+    <!-- Header -->
+    <header class="bg-indigo-700 text-white shadow-md py-4 px-6">
+        <div class="max-w-4xl mx-auto flex justify-between items-center">
+            <h1 class="text-xl font-bold flex items-center gap-2">
+                📄 Exam Paper Scanner & Generator
+            </h1>
+            <span class="text-xs bg-indigo-800 py-1 px-3 rounded-full">Single File App</span>
+        </div>
+    </header>
+
+    <!-- Main Container -->
+    <main class="max-w-4xl w-full mx-auto p-4 md:p-6 flex-grow space-y-6">
+
+        <!-- Step 1: Input / Scanner Section -->
+        <section class="bg-white p-6 rounded-2xl shadow-sm border border-slate-200">
+            <h2 class="text-lg font-semibold text-slate-700 mb-4">Step 1: Page Scan Ya Upload Karein</h2>
+            
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <!-- File Upload -->
+                <div class="flex flex-col justify-center items-center border-2 border-dashed border-slate-300 rounded-xl p-6 hover:border-indigo-500 transition cursor-pointer relative">
+                    <input type="file" id="imageInput" accept="image/*" class="absolute inset-0 opacity-0 cursor-pointer">
+                    <svg class="w-10 h-10 text-slate-400 mb-2" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z"></path></svg>
+                    <span class="text-sm font-medium text-slate-600">Gallery se Image Select Karein</span>
+                    <span class="text-xs text-slate-400 mt-1">PNG, JPG, JPEG</span>
+                </div>
+
+                <!-- Preview Box -->
+                <div class="flex flex-col items-center justify-center border border-slate-200 rounded-xl p-3 bg-slate-50 min-h-[160px]">
+                    <p id="previewText" class="text-xs text-slate-400 mb-2">Image Preview Yahan Ayega</p>
+                    <img id="imagePreview" class="max-h-40 rounded object-contain hidden shadow" alt="Preview">
+                </div>
+            </div>
+
+            <!-- Scan Button -->
+            <button id="scanBtn" onclick="startOCR()" class="mt-4 w-full bg-indigo-600 hover:bg-indigo-700 text-white font-medium py-2.5 rounded-xl transition flex items-center justify-center gap-2 shadow-sm disabled:opacity-50" disabled>
+                <span>🔍 Text Scan Karein (Extract Text)</span>
+            </button>
+
+            <!-- Loading Indicator -->
+            <div id="loadingBox" class="hidden mt-4 text-center">
+                <div class="inline-block animate-spin rounded-full h-6 w-6 border-4 border-indigo-600 border-t-transparent"></div>
+                <p id="loadingStatus" class="text-sm text-indigo-600 font-medium mt-1">Scanning ho rahi hai, baraye meherbani intezar karein...</p>
+            </div>
+        </section>
+
+        <!-- Step 2: Editor & Paper Settings Section -->
+        <section class="bg-white p-6 rounded-2xl shadow-sm border border-slate-200 space-y-4">
+            <h2 class="text-lg font-semibold text-slate-700">Step 2: Paper Details Aur Questions Edit Karein</h2>
+
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+                <div>
+                    <label class="block text-xs font-semibold text-slate-600 mb-1">School / Institute Name</label>
+                    <input type="text" id="schoolName" value="Pine Hills School" class="w-full text-sm border border-slate-300 rounded-lg p-2.5 focus:ring-2 focus:ring-indigo-500 outline-none">
+                </div>
+                <div>
+                    <label class="block text-xs font-semibold text-slate-600 mb-1">Subject / Title</label>
+                    <input type="text" id="paperSubject" value="General Assessment" class="w-full text-sm border border-slate-300 rounded-lg p-2.5 focus:ring-2 focus:ring-indigo-500 outline-none">
+                </div>
+                <div>
+                    <label class="block text-xs font-semibold text-slate-600 mb-1">Total Marks / Time</label>
+                    <input type="text" id="paperMarks" value="Marks: 50 | Time: 1 Hour" class="w-full text-sm border border-slate-300 rounded-lg p-2.5 focus:ring-2 focus:ring-indigo-500 outline-none">
+                </div>
+            </div>
+
+            <div>
+                <label class="block text-xs font-semibold text-slate-600 mb-1">Extracted / Editable Questions Text</label>
+                <textarea id="extractedText" rows="6" class="w-full text-sm border border-slate-300 rounded-xl p-3 focus:ring-2 focus:ring-indigo-500 outline-none font-mono" placeholder="Scan karne ke baad text yahan show hoga, aap yahan manual editing bhi kar sakte hain..."></textarea>
+            </div>
+
+            <button onclick="generatePaper()" class="w-full bg-emerald-600 hover:bg-emerald-700 text-white font-medium py-2.5 rounded-xl transition shadow-sm">
+                ✨ Final Question Paper Tayar Karein
+            </button>
+        </section>
+
+        <!-- Step 3: Final Printable Paper View -->
+        <section id="printArea" class="bg-white p-8 rounded-2xl shadow-sm border border-slate-200 print:shadow-none print:border-none space-y-6">
+            <div class="text-center border-b pb-4">
+                <h2 id="finalSchool" class="text-2xl font-bold uppercase tracking-wide text-slate-900">Pine Hills School</h2>
+                <p id="finalSubject" class="text-base font-medium text-slate-700 mt-1">Subject: General Assessment</p>
+                <div class="flex justify-between text-xs text-slate-600 mt-3 px-2">
+                    <span id="finalMarks">Marks: 50 | Time: 1 Hour</span>
+                    <span>Student Name: _______________________</span>
+                </div>
+            </div>
+
+            <div>
+                <h3 class="text-sm font-bold text-slate-800 uppercase tracking-wider mb-3">Questions:</h3>
+                <div id="finalQuestionsList" class="space-y-3 text-sm text-slate-800 whitespace-pre-line leading-relaxed">
+                    <p class="text-slate-400 italic">Upar diye gaye steps follow karein, yahan aapka formatted paper ban kar aayega.</p>
+                </div>
+            </div>
+        </section>
+
+        <!-- Print Action Button -->
+        <div class="flex justify-end pb-6">
+            <button onclick="window.print()" class="bg-slate-800 hover:bg-slate-900 text-white px-6 py-2.5 rounded-xl font-medium shadow transition flex items-center gap-2">
+                🖨️ Print / Save as PDF
+            </button>
+        </div>
+
+    </main>
+
+    <!-- Footer -->
+    <footer class="bg-slate-100 border-t py-4 text-center text-xs text-slate-500">
+        AI Question Sheet Generator — Single File Web Tool
+    </footer>
+
+    <!-- JavaScript Logic -->
+    <script>
+        let selectedFile = null;
+
+        const imageInput = document.getElementById('imageInput');
+        const imagePreview = document.getElementById('imagePreview');
+        const previewText = document.getElementById('previewText');
+        const scanBtn = document.getElementById('scanBtn');
+
+        imageInput.addEventListener('change', function(event) {
+            const file = event.target.files[0];
+            if (file) {
+                selectedFile = file;
+                const reader = new FileReader();
+                reader.onload = function(e) {
+                    imagePreview.src = e.target.result;
+                    imagePreview.classList.remove('hidden');
+                    previewText.classList.add('hidden');
+                    scanBtn.disabled = false;
+                }
+                reader.readAsDataURL(file);
+            }
+        });
+
+        async function startOCR() {
+            if (!selectedFile) return;
+
+            const loadingBox = document.getElementById('loadingBox');
+            const loadingStatus = document.getElementById('loadingStatus');
+            const extractedTextArea = document.getElementById('extractedText');
+
+            loadingBox.classList.remove('hidden');
+            scanBtn.disabled = true;
+
+            try {
+                loadingStatus.innerText = "OCR Engine load ho raha hai...";
+                
+                // Explicitly creating worker with CDN paths to prevent local file worker block
+                const worker = await Tesseract.createWorker('eng', 1, {
+                    workerPath: 'https://unpkg.com/tesseract.js@v4.1.1/dist/worker.min.js',
+                    corePath: 'https://unpkg.com/tesseract.js-core@v4.0.2/tesseract-core.wasm.js',
+                    logger: m => {
+                        if (m.status === 'recognizing text') {
+                            loadingStatus.innerText = `Scan progress: ${Math.round(m.progress * 100)}%`;
+                        }
+                    }
+                });
+
+                loadingStatus.innerText = "Text read ho raha hai...";
+                const ret = await worker.recognize(selectedFile);
+                extractedTextArea.value = ret.data.text;
+
+                await worker.terminate();
+                loadingBox.classList.add('hidden');
+                scanBtn.disabled = false;
+                
+                generatePaper();
+            } catch (error) {
+                console.error(error);
+                alert("Text scan karne mein masla hua. Baraye meherbani page ko Live Server ya local web server par chalayein.");
+                loadingBox.classList.add('hidden');
+                scanBtn.disabled = false;
+            }
+        }
+
+        function generatePaper() {
+            const school = document.getElementById('schoolName').value;
+            const subject = document.getElementById('paperSubject').value;
+            const marks = document.getElementById('paperMarks').value;
+            const rawText = document.getElementById('extractedText').value;
+
+            document.getElementById('finalSchool').innerText = school;
+            document.getElementById('finalSubject').innerText = "Subject: " + subject;
+            document.getElementById('finalMarks').innerText = marks;
+
+            const listContainer = document.getElementById('finalQuestionsList');
+            
+            if (!rawText.trim()) {
+                listContainer.innerHTML = `<p class="text-slate-400 italic">Koi text maujood nahi hai.</p>`;
+                return;
+            }
+
+            const lines = rawText.split('\n').filter(line => line.trim() !== '');
+            let formattedHTML = '';
+            
+            let qCount = 1;
+            lines.forEach(line => {
+                formattedHTML += `<div class="flex gap-2"><span class="font-semibold text-slate-600">Q${qCount++}.</span> <span>${line}</span></div>`;
+            });
+
+            listContainer.innerHTML = formattedHTML;
+        }
+    </script>
+</body>
+</html>
